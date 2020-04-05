@@ -1,0 +1,15 @@
+{
+  "name": "MBEasyModifier",
+  "version": "1.0.0",
+  "description": "A script to easily perform multiple types of modifications to the Emby Dashboard",
+  "main": "main.js",
+  "scripts": {
+    "backup": "node ."
+  },
+  "keywords": [],
+  "author": "Rechigo (Luke)",
+  "license": "MIT",
+  "dependencies": {
+    "fs-extra": "^9.0.0"
+  }
+}
