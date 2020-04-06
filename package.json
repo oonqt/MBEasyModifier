@@ -4,7 +4,7 @@
   "description": "A script to easily perform multiple types of modifications to the Emby Dashboard",
   "main": "main.js",
   "scripts": {
-    "backup": "node ."
+    "patch": "node ."
   },
   "keywords": [],
   "author": "Rechigo (Luke)",
