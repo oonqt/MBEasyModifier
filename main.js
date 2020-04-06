@@ -16,13 +16,13 @@ async function main() {
             process.exit(1);
         });
 
-    await findAndOverwrite(profile.FindAndOverwrite, config.DashboardBasePath, config.ModificationSourcePath)
+    await findAndOverwrite(profile.FindAndOverwrite, profile.DashboardBasePath, config.ModificationSourcePath)
         .catch(err => {
             console.error("Failed to find and overwrite", err);
             process.exit(1);
         });
 
-    await findAndInsert(profile.FindAndInsert, config.DashboardBasePath)
+    await findAndInsert(profile.FindAndInsert, profile.DashboardBasePath)
         .catch(err => {
             console.error("Failed to find and insert:", err);
             process.exit(1);
@@ -80,12 +80,14 @@ function findAndOverwrite(overwriteRules, basePath, modificationSourcePath) {
     return new Promise(async (resolve, reject) => {
         for (const rule of overwriteRules) {
             try {
-                const isDir = await fs.statSync(rule.source).isDirectory();
+                const sourcePath = path.join(modificationSourcePath, rule.source);
+
+                const isDir = await fs.statSync(sourcePath).isDirectory();
 
                 if(isDir) {
-                    await fs.copySync(path.join(modificationSourcePath, rule.source), path.join(basePath, rule.dest, path.parse(rule.source).base), { overwrite: true });
+                    await fs.copySync(sourcePath, path.join(basePath, rule.dest, path.parse(sourcePath).base), { overwrite: true });
                 } else {
-                    await fs.copyFileSync(path.join(modificationSourcePath, rule.source), path.join(basePath, rule.dest, path.parse(rule.source).base), { overwrite: true });
+                    await fs.copyFileSync(sourcePath, path.join(basePath, rule.dest, path.parse(sourcePath).base), { overwrite: true });
                 }
             } catch (err) {
                 reject(err);
