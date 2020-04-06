@@ -9,7 +9,7 @@ async function main() {
             process.exit(1);
         });
 
-    await findAndOverwrite(config.FindAndOverwrite, config.DashboardBasePath)
+    await findAndOverwrite(config.FindAndOverwrite, config.DashboardBasePath, config.ModificationSourcePath)
         .catch(err => {
             console.error("Failed to find and overwrite", err);
             process.exit(1);
@@ -50,16 +50,16 @@ function findAndInsert(insertRules, basePath) {
     });
 }
 
-function findAndOverwrite(overwriteRules, basePath) {
+function findAndOverwrite(overwriteRules, basePath, modificationSourcePath) {
     return new Promise(async (resolve, reject) => {
         for (const rule of overwriteRules) {
             try {
                 const isDir = await fs.statSync(rule.source).isDirectory();
 
                 if(isDir) {
-                    await fs.copySync(rule.source, path.join(basePath, rule.dest, path.parse(rule.source).base), { overwrite: true });
+                    await fs.copySync(path.join(modificationSourcePath, rule.source), path.join(basePath, rule.dest, path.parse(rule.source).base), { overwrite: true });
                 } else {
-                    await fs.copyFileSync(rule.source, path.join(basePath, rule.dest, path.parse(rule.source).base), { overwrite: true });
+                    await fs.copyFileSync(path.join(modificationSourcePath, rule.source), path.join(basePath, rule.dest, path.parse(rule.source).base), { overwrite: true });
                 }
             } catch (err) {
                 reject(err);
