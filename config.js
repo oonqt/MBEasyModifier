@@ -1,6 +1,13 @@
 module.exports = {
+    // this is the base path where your emby dashboard installation lives
+    // all "source" paths are relative to this one
     "DashboardBasePath": "C:\\Users\\Luke\\AppData\\Roaming\\Emby-Server\\system\\dashboard-ui",
+
+    // this is the backup path
+    // you HAVE to fill this in (or else you'll regret it when you screw up somehow)
     "DashboardBackupPath": "E:\\EmbyData\\backups",
+
+    // this is the sourc efile im done writing this for tonight
     "ModificationSourcePath": "E:\\EmbyData\\ModificationHold",
     "FindAndOverwrite": [
         { source: "movies.js", dest: "movies" },
