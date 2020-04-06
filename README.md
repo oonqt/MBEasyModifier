@@ -1,1 +1,1 @@
-# Check back later once this project is complete for instructions !
+# I'm really only using this for myself, I might make a guide in the future, I might not. Feel free to figure out how it works, pretty simple..
