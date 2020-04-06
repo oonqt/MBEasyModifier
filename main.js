@@ -1,27 +1,53 @@
 const fs = require("fs-extra");
+const readline = require("readline");
 const path = require("path");
 const config = require("./config.js");
 
 async function main() {
-    await backupDashboard(config.DashboardBasePath, config.DashboardBackupPath)
+    const profile = await promptProfileSelection(config.Profiles)
+        .catch(err => {
+            console.error(err);
+            process.exit();
+        });
+
+    await backupDashboard(profile.DashboardBasePath, config.DashboardBackupPath)
         .catch(err => {
             console.error("Failed to backup dashboard:", err);
             process.exit(1);
         });
 
-    await findAndOverwrite(config.FindAndOverwrite, config.DashboardBasePath, config.ModificationSourcePath)
+    await findAndOverwrite(profile.FindAndOverwrite, config.DashboardBasePath, config.ModificationSourcePath)
         .catch(err => {
             console.error("Failed to find and overwrite", err);
             process.exit(1);
         });
 
-    await findAndInsert(config.FindAndInsert, config.DashboardBasePath)
+    await findAndInsert(profile.FindAndInsert, config.DashboardBasePath)
         .catch(err => {
             console.error("Failed to find and insert:", err);
             process.exit(1);
         });
 
     console.log("Successfully performed modifications without errors");
+}
+
+function promptProfileSelection(profiles) {
+    const interface = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+
+    return new Promise((resolve, reject) => {
+        interface.question(`Enter a profile name to apply patch: ${profiles.map(profile => profile.Name).join(", ")} \n\n`, answer => {
+            const profile = profiles.filter(profile => profile.Name === answer).shift();
+
+            if(!profile) reject(`No profile with the name ${answer} exists`);
+
+            resolve(profile.Profile);
+
+            interface.close();
+        });
+    });
 }
 
 function findAndInsert(insertRules, basePath) {
