@@ -38,7 +38,7 @@ function findAndInsert(insertRules, basePath) {
 
                 if(insertIndex === -1) reject(`Insert string not found in source file g(${rule.destFilePath})`);
 
-                insertFileContents = insertAtIndex(insertFileContents, insertIndex, rule.insertString);
+                insertFileContents = insertAtIndex(insertFileContents, insertIndex + rule.findString.length, rule.insertString);
 
                 await fs.writeFileSync(destFilePath, insertFileContents);
             } catch (err) {
