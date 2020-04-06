@@ -20,8 +20,8 @@ module.exports = {
         { source: "E:\\EmbyData\\ModificationHold\\wmc", dest: "modules\\themes" },
     ],
     "FindAndInsert": [
-        { findString: '{name:"Dark (red accent)",id:"dark-red"},', insertString: '{name:"Dark (blue accent)",id:"dark-blue"}', destFile: "modules\\skinmanager.js" },
-        { findString: '{name:"Dark (red accent)",id:"dark-red"},', insertString: '{name:"Black (blue accent)",id:"black-blue"}', destFile: "modules\\skinmanager.js" },
+        { findString: '{name:"Dark (red accent)",id:"dark-red"},', insertString: '{name:"Dark (blue accent)",id:"dark-blue"},', destFile: "modules\\skinmanager.js" },
+        { findString: '{name:"Dark (red accent)",id:"dark-red"},', insertString: '{name:"Black (blue accent)",id:"black-blue"},', destFile: "modules\\skinmanager.js" },
         { 
             findString: 'view.querySelector(".btnPip").addEventListener("click",function(){playbackManager.togglePictureInPicture(currentPlayer)}),', 
             insertString: `nowPlayingVolumeSlider.addEventListener("wheel", function(e) {
