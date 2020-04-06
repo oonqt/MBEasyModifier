@@ -4,6 +4,7 @@ module.exports = {
     Profiles: [
         {
             Name: "Web",
+            Backup: true,
             Profile: {
                 DashboardBasePath: "C:\\Users\\Luke\\AppData\\Roaming\\Emby-Server\\system\\dashboard-ui",
                 FindAndOverwrite: [
@@ -84,6 +85,7 @@ module.exports = {
         },
         {
             Name: "Android",
+            Backup: false,
             Profile: {
                 DashboardBasePath: "C:\\Users\\Luke\\Desktop\\MBAndroid\\assets\\www",
                 FindAndOverwrite: [
