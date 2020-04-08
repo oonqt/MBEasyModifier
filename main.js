@@ -10,7 +10,7 @@ async function main() {
             process.exit();
         });
 
-    await backupDashboard(profile.DashboardBasePath, config.DashboardBackupPath)
+    if(profile.Backup === true) await backupDashboard(profile.DashboardBasePath, config.DashboardBackupPath)
         .catch(err => {
             console.error("Failed to backup dashboard:", err);
             process.exit(1);
@@ -19,6 +19,12 @@ async function main() {
     await findAndOverwrite(profile.FindAndOverwrite, profile.DashboardBasePath, config.ModificationSourcePath)
         .catch(err => {
             console.error("Failed to find and overwrite", err);
+            process.exit(1);
+        });
+
+    await findAndReplace(profile.FindAndReplace, profile.DashboardBasePath)
+        .catch(err => {
+            console.error("Failed to find and replace", err);
             process.exit(1);
         });
 
@@ -38,15 +44,41 @@ function promptProfileSelection(profiles) {
     });
 
     return new Promise((resolve, reject) => {
-        interface.question(`Enter a profile name to apply patch: ${profiles.map(profile => profile.Name).join(", ")} \n\n`, answer => {
-            const profile = profiles.filter(profile => profile.Name === answer).shift();
+        interface.question(`Select a patch to apply:\n${profiles.map((p, i) => `${i}) ${p.Name}\n`).join(", ")} \n`, answer => {
+            if(isNaN(answer)) reject("Profile index must be a number")
+            
+            if(answer > (profiles.length - 1)) reject(`No profile with the index ${answer} exists`);
 
-            if(!profile) reject(`No profile with the name ${answer} exists`);
+            const profile = profiles[Number(answer)];
 
             resolve(profile.Profile);
 
             interface.close();
         });
+    });
+}
+
+function findAndReplace(replaceRules, basePath) {
+    return new Promise(async (resolve, reject) => {
+        for(const rule of replaceRules) {
+            try {
+                const destFilePath = path.join(basePath, rule.destFile);
+
+                const isDirDest = await fs.statSync(destFilePath).isDirectory();
+                if(isDirDest) reject(`Find and replace destination must be a file (${destFilePath})`);
+
+                let replaceFileContents = await fs.readFileSync(destFilePath, "utf8");
+                const replaceIndex = replaceFileContents.indexOf(rule.findString);
+
+                if(replaceIndex === -1) reject(`Replace string not found in source file (${rule.destFilePath})`);
+
+                replaceFileContents = replaceAtIndex(replaceFileContents, replaceIndex, rule.replaceString);
+
+                await fs.writeFileSync(destFilePath, replaceFileContents);
+            } catch (err) {
+                reject(err);
+            }
+        }
     });
 }
 
@@ -62,7 +94,7 @@ function findAndInsert(insertRules, basePath) {
                 let insertFileContents = await fs.readFileSync(destFilePath, "utf8");
                 const insertIndex = insertFileContents.indexOf(rule.findString);
 
-                if(insertIndex === -1) reject(`Insert string not found in source file g(${rule.destFilePath})`);
+                if(insertIndex === -1) reject(`Insert string not found in source file (${rule.destFilePath})`);
 
                 insertFileContents = insertAtIndex(insertFileContents, insertIndex + rule.findString.length, rule.insertString);
 
@@ -111,5 +143,6 @@ function backupDashboard(sourcePath, destPath) {
 }
 
 const insertAtIndex = (originalString, insertIndex, string) => originalString.slice(0, insertIndex) + string + originalString.slice(insertIndex);
+const replaceAtIndex = (originalString, replaceIndex, string) => "";
 
 main();
