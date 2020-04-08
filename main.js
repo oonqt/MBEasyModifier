@@ -16,15 +16,15 @@ async function main() {
             process.exit(1);
         });
 
-    await findAndOverwrite(profile.FindAndOverwrite, profile.DashboardBasePath, config.ModificationSourcePath)
+    await findAndReplace(profile.FindAndReplace, profile.DashboardBasePath)
         .catch(err => {
-            console.error("Failed to find and overwrite", err);
+            console.error("Failed to find and replace:", err);
             process.exit(1);
         });
 
-    await findAndReplace(profile.FindAndReplace, profile.DashboardBasePath)
+    await findAndOverwrite(profile.FindAndOverwrite, profile.DashboardBasePath, config.ModificationSourcePath)
         .catch(err => {
-            console.error("Failed to find and replace", err);
+            console.error("Failed to find and overwrite:", err);
             process.exit(1);
         });
 
@@ -45,9 +45,9 @@ function promptProfileSelection(profiles) {
 
     return new Promise((resolve, reject) => {
         interface.question(`Select a patch to apply:\n${profiles.map((p, i) => `${i}) ${p.Name}\n`).join(", ")} \n`, answer => {
-            if(isNaN(answer)) reject("Profile index must be a number")
+            if(isNaN(answer)) return reject("Profile index must be a number")
             
-            if(answer > (profiles.length - 1)) reject(`No profile with the index ${answer} exists`);
+            if(answer > (profiles.length - 1)) return reject(`No profile with the index ${answer} exists`);
 
             const profile = profiles[Number(answer)];
 
@@ -65,14 +65,14 @@ function findAndReplace(replaceRules, basePath) {
                 const destFilePath = path.join(basePath, rule.destFile);
 
                 const isDirDest = await fs.statSync(destFilePath).isDirectory();
-                if(isDirDest) reject(`Find and replace destination must be a file (${destFilePath})`);
+                if(isDirDest) return reject(`Find and replace destination must be a file (${destFilePath})`);
 
                 let replaceFileContents = await fs.readFileSync(destFilePath, "utf8");
                 const replaceIndex = replaceFileContents.indexOf(rule.findString);
 
-                if(replaceIndex === -1) reject(`Replace string not found in source file (${rule.destFilePath})`);
+                if(replaceIndex === -1) return reject(`Replace string "${rule.findString}" not found in source file (${destFilePath})`);
 
-                replaceFileContents = replaceAtIndex(replaceFileContents, replaceIndex, rule.replaceString);
+                replaceFileContents = replaceAtIndex(replaceFileContents, replaceIndex, rule.replaceString, rule.findString.length);
 
                 await fs.writeFileSync(destFilePath, replaceFileContents);
             } catch (err) {
@@ -89,12 +89,12 @@ function findAndInsert(insertRules, basePath) {
                 const destFilePath = path.join(basePath, rule.destFile);
 
                 const isDirDest = await fs.statSync(destFilePath).isDirectory();
-                if(isDirDest) reject(`Find and insert destination must be a file (${destFilePath})`);
+                if(isDirDest) return reject(`Find and insert destination must be a file (${destFilePath})`);
 
                 let insertFileContents = await fs.readFileSync(destFilePath, "utf8");
                 const insertIndex = insertFileContents.indexOf(rule.findString);
 
-                if(insertIndex === -1) reject(`Insert string not found in source file (${rule.destFilePath})`);
+                if(insertIndex === -1) return reject(`Insert string not found in source file (${rule.destFilePath})`);
 
                 insertFileContents = insertAtIndex(insertFileContents, insertIndex + rule.findString.length, rule.insertString);
 
@@ -143,6 +143,6 @@ function backupDashboard(sourcePath, destPath) {
 }
 
 const insertAtIndex = (originalString, insertIndex, string) => originalString.slice(0, insertIndex) + string + originalString.slice(insertIndex);
-const replaceAtIndex = (originalString, replaceIndex, string) => "";
+const replaceAtIndex = (originalString, replaceIndex, replaceString, findStringLength) => originalString.substr(0, replaceIndex) + replaceString + originalString.substr(replaceIndex, findStringLength);
 
 main();
