@@ -11,11 +11,14 @@ async function main() {
             process.exit();
         });
 
-    if(profile.Backup) await backupDashboard(profile.DashboardBasePath, config.DashboardBackupPath)
-        .catch(err => {
-            console.error("Failed to backup dashboard:", err);
-            process.exit(1);
-        });
+    if(profile.Backup) {
+        console.log("Performing backup")
+        await backupDashboard(profile.DashboardBasePath, config.DashboardBackupPath)
+            .catch(err => {
+                console.error("Failed to backup dashboard:", err);
+                process.exit(1);
+            });
+    }
 
     if(profile.PreModCommand) {
         console.log("Executing pre-mod command");
@@ -26,18 +29,21 @@ async function main() {
             });
     }
 
+    console.log("Executing find and replace");
     await findAndReplace(profile.FindAndReplace, profile.DashboardBasePath)
         .catch(err => {
             console.error("Failed to find and replace:", err);
             process.exit(1);
         });
 
+    console.log("Executing find and overwrite");
     await findAndOverwrite(profile.FindAndOverwrite, profile.DashboardBasePath, config.ModificationSourcePath)
         .catch(err => {
             console.error("Failed to find and overwrite:", err);
             process.exit(1);
         });
 
+    console.log("Executing find and insert");
     await findAndInsert(profile.FindAndInsert, profile.DashboardBasePath)
         .catch(err => {
             console.error("Failed to find and insert:", err);
