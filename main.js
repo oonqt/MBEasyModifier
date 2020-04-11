@@ -1,4 +1,5 @@
 const fs = require("fs-extra");
+const { exec } = require("child_process");
 const readline = require("readline");
 const path = require("path");
 const config = require("./config.js");
@@ -10,11 +11,20 @@ async function main() {
             process.exit();
         });
 
-    if(profile.Backup === true) await backupDashboard(profile.DashboardBasePath, config.DashboardBackupPath)
+    if(profile.Backup) await backupDashboard(profile.DashboardBasePath, config.DashboardBackupPath)
         .catch(err => {
             console.error("Failed to backup dashboard:", err);
             process.exit(1);
         });
+
+    if(profile.PreModCommand) {
+        console.log("Executing pre-mod command");
+        await executeModCommand(profile.PreModCommand)
+            .catch(err => {
+                console.error("Failed to execute pre-mod command", err);
+                process.exit(1);
+            });
+    }
 
     await findAndReplace(profile.FindAndReplace, profile.DashboardBasePath)
         .catch(err => {
@@ -34,7 +44,27 @@ async function main() {
             process.exit(1);
         });
 
+    if (profile.PostModCommand) {
+        console.log("Executing post-mod command");
+        await executeModCommand(profile.PostModCommand)
+            .catch(err => {
+                console.error("Failed to execute pre-mod command", err);
+                process.exit(1);
+            });
+    }
+
     console.log("Successfully performed modifications without errors");
+}
+
+function executeModCommand(command) {
+    return new Promise((resolve, reject) => {
+        exec(command, (err, stdout, stderr) => {
+            if(err) reject (err);
+            if(stderr) reject(stderr);
+
+            resolve();
+        })
+    });
 }
 
 function promptProfileSelection(profiles) {
@@ -43,13 +73,17 @@ function promptProfileSelection(profiles) {
         output: process.stdout
     });
 
-    return new Promise((resolve, reject) => {
-        interface.question(`Select a patch to apply:\n${profiles.map((p, i) => `${i}) ${p.Name}\n`).join(", ")} \n`, answer => {
-            if(isNaN(answer)) return reject("Profile index must be a number")
-            
-            if(answer > (profiles.length - 1)) return reject(`No profile with the index ${answer} exists`);
+    profiles.push({ Name: "Exit Program" });
 
-            const profile = profiles[Number(answer)];
+    return new Promise((resolve, reject) => {
+        interface.question(`Select a patch to apply:\n${profiles.map((p, i) => `${i}) ${p.Name}`).join("\n")} \n`, answer => {
+            answer = Number(answer);
+
+            if(isNaN(answer)) return reject("Profile index must be a number")
+            if(answer > (profiles.length - 1)) return reject(`No profile with the index ${answer} exists`);
+            if(answer === (profiles.length - 1)) process.exit(0);
+
+            const profile = profiles[answer];
 
             resolve(profile.Profile);
 
@@ -68,13 +102,12 @@ function findAndReplace(replaceRules, basePath) {
                 if(isDirDest) return reject(`Find and replace destination must be a file (${destFilePath})`);
 
                 let replaceFileContents = await fs.readFileSync(destFilePath, "utf8");
-                const replaceIndex = replaceFileContents.indexOf(rule.findString);
 
-                if(replaceIndex === -1) return reject(`Replace string "${rule.findString}" not found in source file (${destFilePath})`);
-
-                replaceFileContents = replaceAtIndex(replaceFileContents, replaceIndex, rule.replaceString, rule.findString.length);
+                replaceFileContents = replaceFileContents.replace(rule.findString, rule.replaceString);
 
                 await fs.writeFileSync(destFilePath, replaceFileContents);
+
+                resolve();
             } catch (err) {
                 reject(err);
             }
@@ -94,17 +127,17 @@ function findAndInsert(insertRules, basePath) {
                 let insertFileContents = await fs.readFileSync(destFilePath, "utf8");
                 const insertIndex = insertFileContents.indexOf(rule.findString);
 
-                if(insertIndex === -1) return reject(`Insert string not found in source file (${rule.destFilePath})`);
+                if(insertIndex === -1) return reject(`Find string (${rule.findString}) not found in source file (${destFilePath})`);
 
                 insertFileContents = insertAtIndex(insertFileContents, insertIndex + rule.findString.length, rule.insertString);
 
                 await fs.writeFileSync(destFilePath, insertFileContents);
+
+                resolve();
             } catch (err) {
                 reject(err);
             }
         }
-
-        resolve();
     });
 }
 
@@ -121,12 +154,12 @@ function findAndOverwrite(overwriteRules, basePath, modificationSourcePath) {
                 } else {
                     await fs.copyFileSync(sourcePath, path.join(basePath, rule.dest, path.parse(sourcePath).base), { overwrite: true });
                 }
+         
+                resolve();
             } catch (err) {
                 reject(err);
             }
         }
-
-        resolve();
     });
 }
 
@@ -143,6 +176,5 @@ function backupDashboard(sourcePath, destPath) {
 }
 
 const insertAtIndex = (originalString, insertIndex, string) => originalString.slice(0, insertIndex) + string + originalString.slice(insertIndex);
-const replaceAtIndex = (originalString, replaceIndex, replaceString, findStringLength) => originalString.substr(0, replaceIndex) + replaceString + originalString.substr(replaceIndex, findStringLength);
 
 main();
