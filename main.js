@@ -107,7 +107,7 @@ function findAndReplace(replaceRules, basePath) {
                 const isDirDest = await fs.statSync(destFilePath).isDirectory();
                 if(isDirDest) return reject(`Find and replace destination must be a file (${destFilePath})`);
 
-                let replaceFileContents = await fs.readFileSync(destFilePath, "utf8");
+                let replaceFileContents = await fs.readFileSync(destFilePath, "utf8");z
 
                 replaceFileContents = replaceFileContents.replace(rule.findString, rule.replaceString);
 

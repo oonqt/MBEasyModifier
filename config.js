@@ -3,7 +3,7 @@ module.exports = {
     ModificationSourcePath: "E:\\EmbyData\\ModificationHold",
     Profiles: [
         {
-            Name: "Web",
+            Name: "Web (dashboard-ui)",
             Profile: {
                 Backup: true,
                 PreModCommand: "taskkill /IM EmbyServer.exe /IM EmbyTray.exe /F",
@@ -111,8 +111,8 @@ module.exports = {
             Name: "Android",
             Profile: {
                 Backup: false,
-                PreModCommand: "cd C:\\Users\\Luke\\Desktop\\EmbyAndroidLab && apktool d MediaBrowser.Mobile-google-armeabi-v7a-release.apk -o MediaBrowser.Mobile",
-                PostModCommand: "cd C:\\Users\\Luke\\Desktop\\EmbyAndroidLab && apktool b MediaBrowser.Mobile\\ -o MediaBrowser.Mobile.apk",
+                // PreModCommand: "apktool d C:\\Users\\Luke\\Desktop\\EmbyAndroidLab\\MediaBrowser.Mobile-google-armeabi-v7a-release.apk -o C:\\Users\\Luke\\Desktop\\EmbyAndroidLab\\MediaBrowser.Mobile -f",
+                // PostModCommand: "apktool b C:\\Users\\Luke\\Desktop\\EmbyAndroidLab\\MediaBrowser.Mobile\\ -o C:\\Users\\Luke\\Desktop\\EmbyAndroidLab\\MediaBrowser.Mobile.apk",
                 DashboardBasePath: "C:\\Users\\Luke\\Desktop\\EmbyAndroidLab\\MediaBrowser.Mobile\\assets\\www",
                 FindAndOverwrite: [
                     { source: "movies.js", dest: "movies" },
@@ -152,6 +152,17 @@ module.exports = {
                         destFile: "settings\\subtitle.html",
                         insertString: '<option value="#0099ff">Blue</option>',
                         findString: '<option value="#ffffff">${White}</option>'
+                    },
+                    {
+                        destFile: "index.html",
+                        insertString: '<style>.scrollbuttoncontainer{backdrop-filter:blur(2px) saturate(2);opacity:.9}.innerCardFooter.fullInnerCardFooter{border-radius:25px}*{outline:0!important}.chkCardSelectContainer.cardOverlayButton>.checkboxLabel{outline:0!important}.scalableCard.activeSession.card.backdropCard.backdropCard-scalable.playingSession{cursor:auto}.raised.item-tag-button.nobackdropfilter.emby-button{backdrop-filter:saturate(1.8) blur(1.5em);background:rgba(85,85,85,.3)}.dialog>.emby-select-withcolor.emby-select{backdrop-filter:none!important}.mediaSource>div:nth-child(3){display:none!important}.emby-tab-button.emby-button{text-decoration:none!important}div.cardText{white-space:pre-wrap}.osdPoster-img{max-height:none!important}.infoBanner.betaInfoBanner{background:#eedc82;color:#000}.paperList>.listItem.listItem-border.emby-button{padding-top:7.5px;padding-bottom:7.5px}.focuscontainer.dialog.centeredDialog.formDialog{min-width:200px}.button-link.btnReadMore.flex-shrink-zero.secondaryText.emby-button{text-decoration:none}.button-link{text-decoration:none!important}.itemAction.textActionButton.cardTextActionButton{text-decoration:none}.cardOverlayContainer.itemAction{border-radius:4px;background:rgba(20,20,20,.5)!important;backdrop-filter:saturate(1.5)}.itemAction.cardContent-button.cardContent.cardImageContainer.cardContent-shadow.coveredImage{-webkit-box-shadow:none!important;box-shadow:none!important;background-color:transparent!important}</style>',
+                        findString: `@media (orientation: landscape) {
+
+                            .app-splash {
+                                left: 37.5%;
+                                right: 37.5%;
+                            }
+                        }`
                     }
                 ],
                 FindAndReplace: [
@@ -163,7 +174,7 @@ module.exports = {
                     {
                         findString: '{name:"Dark",id:"dark",isDefault:"dark"===defaultTheme}',
                         replaceString: '{name:"Dark",id:"dark"}',
-                        destFile: 'modules\\skinmanager.js'
+                        destFile: 'modules\\skithisfuckingfiledoesntiexistdumbfucknmanager.js'
                     }
                 ]
             }
