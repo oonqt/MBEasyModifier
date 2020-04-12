@@ -107,17 +107,19 @@ function findAndReplace(replaceRules, basePath) {
                 const isDirDest = await fs.statSync(destFilePath).isDirectory();
                 if(isDirDest) return reject(`Find and replace destination must be a file (${destFilePath})`);
 
-                let replaceFileContents = await fs.readFileSync(destFilePath, "utf8");z
+                let replaceFileContents = await fs.readFileSync(destFilePath, "utf8");
+
+                if(replaceFileContents.indexOf(rule.findString) === -1) reject(`Find string (${rule.findString}) not found in source (${destFilePath})`);
 
                 replaceFileContents = replaceFileContents.replace(rule.findString, rule.replaceString);
 
                 await fs.writeFileSync(destFilePath, replaceFileContents);
-
-                resolve();
             } catch (err) {
                 reject(err);
             }
         }
+
+        resolve();
     });
 }
 
@@ -127,7 +129,7 @@ function findAndInsert(insertRules, basePath) {
             try {
                 const destFilePath = path.join(basePath, rule.destFile);
 
-                const isDirDest = await fs.statSync(destFilePath).isDirectory();
+                const isDirDest = await fs.lstatSync(destFilePath).isDirectory();
                 if(isDirDest) return reject(`Find and insert destination must be a file (${destFilePath})`);
 
                 let insertFileContents = await fs.readFileSync(destFilePath, "utf8");
@@ -138,12 +140,12 @@ function findAndInsert(insertRules, basePath) {
                 insertFileContents = insertAtIndex(insertFileContents, insertIndex + rule.findString.length, rule.insertString);
 
                 await fs.writeFileSync(destFilePath, insertFileContents);
-
-                resolve();
             } catch (err) {
                 reject(err);
             }
         }
+
+        resolve();
     });
 }
 
@@ -159,13 +161,13 @@ function findAndOverwrite(overwriteRules, basePath, modificationSourcePath) {
                     await fs.copySync(sourcePath, path.join(basePath, rule.dest, path.parse(sourcePath).base), { overwrite: true });
                 } else {
                     await fs.copyFileSync(sourcePath, path.join(basePath, rule.dest, path.parse(sourcePath).base), { overwrite: true });
-                }
-         
-                resolve();
+                }         
             } catch (err) {
                 reject(err);
             }
         }
+
+        resolve();
     });
 }
 
