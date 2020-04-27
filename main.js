@@ -4,7 +4,7 @@ const readline = require("readline");
 const path = require("path");
 const config = require("./config.js");
 
-async function main() {
+(async () => {
     const profile = await promptProfileSelection(config.Profiles)
         .catch(err => {
             console.error(err);
@@ -54,13 +54,13 @@ async function main() {
         console.log("Executing post-mod command");
         await executeModCommand(profile.PostModCommand)
             .catch(err => {
-                console.error("Failed to execute pre-mod command", err);
+                console.error("Failed to execute post-mod command", err);
                 process.exit(1);
             });
     }
 
     console.log("Successfully performed modifications without errors");
-}
+})();
 
 function executeModCommand(command) {
     return new Promise((resolve, reject) => {
@@ -184,5 +184,3 @@ function backupDashboard(sourcePath, destPath) {
 }
 
 const insertAtIndex = (originalString, insertIndex, string) => originalString.slice(0, insertIndex) + string + originalString.slice(insertIndex);
-
-main();
