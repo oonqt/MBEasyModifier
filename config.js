@@ -26,6 +26,7 @@ module.exports = {
                     { source: "dark-blue", dest: "modules\\themes" },
                     { source: "blueradiance", dest: "modules\\themes" },
                     { source: "wmc", dest: "modules\\themes" },
+                    { source: "light-blue", dest: "modules\\themes" }
                 ],
                 FindAndInsert: [
                     { 
@@ -131,6 +132,7 @@ module.exports = {
                     { source: "dark-blue", dest: "assets\\www\\modules\\themes" },
                     { source: "blueradiance", dest: "assets\\www\\modules\\themes" },
                     { source: "wmc", dest: "assets\\www\\modules\\themes" },
+                    { source: "light-blue", dest: "modules\\themes" },
                     { source: "android_icons\\drawable\\icon.png", dest: "\\res\\drawable" },
                     { source: "android_icons\\drawable\\logob400.png", dest: "\\res\\drawable" },
                     { source: "android_icons\\drawable-hdpi\\icon.png", dest: "\\res\\drawable-hdpi" },
