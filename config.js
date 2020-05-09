@@ -6,8 +6,6 @@ module.exports = {
             Name: "Web (dashboard-ui)",
             Profile: {
                 Backup: true,
-                PreModCommand: "taskkill /IM EmbyServer.exe /IM EmbyTray.exe /F",
-                PostModCommand: "C:\\Users\\Luke\\AppData\\Roaming\\Emby-Server\\system\\EmbyServer.exe",
                 DashboardBasePath: "C:\\Users\\Luke\\AppData\\Roaming\\Emby-Server\\system\\dashboard-ui",
                 FindAndOverwrite: [
                     { source: "movies.js", dest: "movies" },
@@ -92,6 +90,58 @@ module.exports = {
                                 playbackManager.setVolume(this.value, currentPlayer);
                               }),`,
                         destFile: "modules\\nowplayingbar\\nowplayingbar.js" 
+                    },
+                    {
+                        findString: '</script>',
+                        insertString: `<script>(function(win) {
+                            var blurObserver = new MutationObserver((mutations) => {
+                                try {
+                                    var backgroundContainer = document.querySelector('.dialogBackdropOpened');
+                                    var backdropContainer = document.querySelector('.backdropContainer ');
+                                    var drawer = document.querySelector('.mainDrawer');
+                                    var mainAnimatedPages = document.querySelector('.mainAnimatedPages');
+                                    var skinHeader = document.querySelector('.skinHeader');
+                                    var appFooter = document.querySelector(".appfooter");
+                                    var videoPlayer = document.querySelector(".videoPlayerContainer");
+                        
+                                    if (document.querySelector('.dialogBackdropOpened')) {
+                                        backgroundContainer.style.opacity = 0;
+                                        drawer.style.filter = "blur(8px)";
+                                        drawer.style.transition = "linear 0.075s";
+                                        mainAnimatedPages.style.filter = "blur(8px)";
+                                        mainAnimatedPages.style.transition = "linear 0.075s";
+                                        skinHeader.style.filter = "blur(8px)";
+                                        skinHeader.style.transition = "linear 0.075s";
+                                        backdropContainer.style.filter = "blur(8px)";
+                                        backdropContainer.style.transition = "linear 0.075s";
+                                        appFooter.style.filter = "blur(8px)";
+                                        appFooter.style.transition = "linear 0.075s";
+                                        videoPlayer.style.filter = "blur(8px)";
+                                        videoPlayer.style.transition = "linear 0.075s";
+                                        return;
+                        
+                                    } else if (!document.querySelector('.dialogBackdropOpened')) {
+                                        drawer.style.filter = "blur(0)";
+                                        mainAnimatedPages.style.filter = "blur(0)";
+                                        skinHeader.style.filter = "blur(0)";
+                                        backdropContainer.style.filter = "blur(0)";
+                                        appFooter.style.filter = "blur(0)";
+                                        videoPlayer.style.filter = "blur(0)";
+                                        return;
+                                    }
+                                } catch (error) {
+                                }
+                            });
+                        
+                            blurObserver.observe(document,
+                                {
+                                    childList: true,
+                                    subtree: true,
+                                    attributes: true,
+                                    attributeOldValue: true
+                                });
+                        })(this);</script>`,
+                        destFile: "index.html"
                     }
                 ],
                 FindAndReplace: [
@@ -104,6 +154,11 @@ module.exports = {
                         findString: '{name:"Dark",id:"dark",isDefault:"dark"===defaultTheme}',
                         replaceString: '{name:"Dark",id:"dark"}',
                         destFile: 'modules\\skinmanager.js'
+                    },
+                    {
+                        destFile: "modules\\listview\\listview.js",
+                        findString: "options.showDateModified&&textlines.push(datetime.toLocaleString(datetime.parseISO8601Date(item.DateModified,!0)))",
+                        replaceString: "options.showDateModified&&textlines.push(`${datetime.toLocaleString(datetime.parseISO8601Date(item.DateModified, !0))}, ${Math.round(item.Size / 1024)} KB`)"
                     }
                 ]
             }
@@ -132,7 +187,7 @@ module.exports = {
                     { source: "dark-blue", dest: "assets\\www\\modules\\themes" },
                     { source: "blueradiance", dest: "assets\\www\\modules\\themes" },
                     { source: "wmc", dest: "assets\\www\\modules\\themes" },
-                    { source: "light-blue", dest: "modules\\themes" },
+                    { source: "light-blue", dest: "assets\\www\\modules\\themes" },
                     { source: "android_icons\\drawable\\icon.png", dest: "\\res\\drawable" },
                     { source: "android_icons\\drawable\\logob400.png", dest: "\\res\\drawable" },
                     { source: "android_icons\\drawable-hdpi\\icon.png", dest: "\\res\\drawable-hdpi" },
@@ -180,8 +235,60 @@ module.exports = {
                     },
                     {
                         destFile: "assets\\www\\index.html",
-                        insertString: '.scrollbuttoncontainer{backdrop-filter:blur(2px) saturate(2);opacity:.9;border:1px solid #000!important}.section1>.verticalSection:nth-child(2){display:none}@media only screen and (min-width:1000px){::-webkit-scrollbar-thumb{-webkit-border-radius:.15em;border-radius:.15em}::-webkit-scrollbar{width:.75em;height:1em}}form.userProfileSettingsForm>.verticalSection>#btnResetPassword{display:none}.chapterThumbTextContainerInner{border-radius:2.5px 2.5px 0 0}.md-icon.listItemIcon{background-color:transparent!important}.scrollbuttoncontainer-right{border-radius:2.5px 0 0 2.5px!important;border-right:none!important}.emby-toggle:checked+.toggleLabel::before{background:rgba(33,150,243,.2)!important}.emby-toggle-focusring:focus:checked+.toggleLabel::after{-webkit-box-shadow:0 0 0 .7em rgba(33,150,243,.2)!important;box-shadow:0 0 0 .7em rgba(33,150,243,.2)!important}.emby-toggle:checked+.toggleLabel::before{background:rgba(33,150,243,.2)}.emby-toggle:checked+.toggleLabel::after{background:#2196f3!important}.scrollbuttoncontainer-left{border-radius:0 2.5px 2.5px 0!important;border-left:none!important}.emby-checkbox-focusring:focus:before{background-color:transparent!important}.latestNewsItems>.listItem>.listItemImageContainer{background-color:#54c54b;border-radius:500px}.innerCardFooter.fullInnerCardFooter{border-radius:25px}*{outline:0!important}.chkCardSelectContainer.cardOverlayButton>.checkboxLabel{outline:0!important}.scalableCard.activeSession.card.backdropCard.backdropCard-scalable.playingSession{cursor:auto}.raised.item-tag-button.nobackdropfilter.emby-button{backdrop-filter:saturate(1.8) blur(1.5em);background:rgba(85,85,85,.3)}.mediaSource>div:nth-child(3){display:none!important}.emby-tab-button.emby-button{text-decoration:none!important}div[data-type=Actor]>.cardBox>.cardText{white-space:pre-wrap}.osdPoster-img{max-height:none!important}.infoBanner.betaInfoBanner{background:#eedc82;color:#000}.paperList>.listItem.listItem-border.emby-button{padding-top:7.5px;padding-bottom:7.5px}.focuscontainer.dialog.centeredDialog.formDialog{min-width:200px}.button-link.btnReadMore.flex-shrink-zero.secondaryText.emby-button{text-decoration:none}.button-link{text-decoration:none!important}.itemAction.textActionButton.cardTextActionButton{text-decoration:none}.cardOverlayContainer.itemAction{border-radius:4px;background:rgba(20,20,20,.5)!important;backdrop-filter:saturate(1.5)}.itemAction.cardContent-button.cardContent.cardImageContainer.cardContent-shadow.coveredImage{-webkit-box-shadow:none!important;box-shadow:none!important;background-color:transparent!important}',
+                        insertString: ".scrollbuttoncontainer{backdrop-filter:blur(2px) saturate(2);opacity:.9;border:1px solid #000!important}.chapterThumbContainer,.chapterThumbImageContainer,.sliderBubble{border-radius:2.5px}.cardOverlayFab-primary i{border:none!important;opacity:.5;transition:.3s;-webkit-transition:all .2s ease-in-out;-o-transition:all .2s ease-in-out;transition:all .2s ease-in-out}.cardBox .cardOverlayFab-primary i{background-color:#000}.cardOverlayFab-primary i:hover{opacity:1;background:var(--theme-primary-color)}.cardOverlayFab-primary{transform:scale(1.15)!important}.cardOverlayFab-primary:hover{transform:scale(1.25)!important}.dashboardSection.activeRecordingsSection>.activeRecordingItems>div[data-status=InProgress]>.cardBox>.cardScalable>.cardOverlayContainer{display:none!important}.itemsContainer>.card.smallBackdropCard.card-hoverable.card-nofocustransform.focusable[data-isfolder=true]:nth-child(6),.itemsContainer>.card.smallBackdropCard.card-hoverable.card-nofocustransform.focusable[data-isfolder=true]:nth-child(7){display:none!important}.section1>.verticalSection:nth-child(2){display:none}@media only screen and (min-width:1000px){::-webkit-scrollbar-thumb{-webkit-border-radius:.15em;border-radius:.15em}::-webkit-scrollbar{width:.75em;height:1em}}form.userProfileSettingsForm>.verticalSection>#btnResetPassword{display:none}.chapterThumbTextContainerInner{border-radius:2.5px 2.5px 0 0}.md-icon.listItemIcon{background-color:transparent!important}.scrollbuttoncontainer-right{border-radius:2.5px 0 0 2.5px!important;border-right:none!important}.emby-toggle:checked+.toggleLabel::before{background:rgba(33,150,243,.2)!important}.emby-toggle-focusring:focus:checked+.toggleLabel::after{-webkit-box-shadow:0 0 0 .7em rgba(33,150,243,.2)!important;box-shadow:0 0 0 .7em rgba(33,150,243,.2)!important}.emby-toggle:checked+.toggleLabel::before{background:rgba(33,150,243,.2)}.emby-toggle:checked+.toggleLabel::after{background:#2196f3!important}.scrollbuttoncontainer-left{border-radius:0 2.5px 2.5px 0!important;border-left:none!important}.emby-checkbox-focusring:focus:before{background-color:transparent!important}.latestNewsItems>.listItem>.listItemImageContainer{background-color:#54c54b;border-radius:500px}.innerCardFooter.fullInnerCardFooter{border-radius:25px}*{outline:0!important}.chkCardSelectContainer.cardOverlayButton>.checkboxLabel{outline:0!important}.scalableCard.activeSession.card.backdropCard.backdropCard-scalable.playingSession{cursor:auto}.raised.item-tag-button.nobackdropfilter.emby-button{backdrop-filter:saturate(1.8) blur(1.5em);background:rgba(85,85,85,.3)}.mediaSource>div:nth-child(3){display:none!important}.emby-tab-button.emby-button{text-decoration:none!important}div[data-type=Actor]>.cardBox>.cardText{white-space:pre-wrap}.osdPoster-img{max-height:none!important}.paperList>.listItem.listItem-border.emby-button{padding-top:7.5px;padding-bottom:7.5px}.focuscontainer.dialog.centeredDialog.formDialog{min-width:200px}.button-link.btnReadMore.flex-shrink-zero.secondaryText.emby-button{text-decoration:none}.button-link{text-decoration:none!important}.itemAction.textActionButton.cardTextActionButton{text-decoration:none}.cardOverlayContainer.itemAction{border-radius:4px;background:rgba(20,20,20,.5)!important;backdrop-filter:saturate(1.5)}.itemAction.cardContent-button.cardContent.cardImageContainer.cardContent-shadow.coveredImage{-webkit-box-shadow:none!important;box-shadow:none!important;background-color:transparent!important}",
                         findString: "<style>"
+                    },
+                    {
+                        findString: '</script>',
+                        insertString: `<script>(function(win) {
+                            var blurObserver = new MutationObserver((mutations) => {
+                                try {
+                                    var backgroundContainer = document.querySelector('.dialogBackdropOpened');
+                                    var backdropContainer = document.querySelector('.backdropContainer ');
+                                    var drawer = document.querySelector('.mainDrawer');
+                                    var mainAnimatedPages = document.querySelector('.mainAnimatedPages');
+                                    var skinHeader = document.querySelector('.skinHeader');
+                                    var appFooter = document.querySelector(".appfooter");
+                                    var videoPlayer = document.querySelector(".videoPlayerContainer");
+                        
+                                    if (document.querySelector('.dialogBackdropOpened')) {
+                                        backgroundContainer.style.opacity = 0;
+                                        drawer.style.filter = "blur(8px)";
+                                        drawer.style.transition = "linear 0.075s";
+                                        mainAnimatedPages.style.filter = "blur(8px)";
+                                        mainAnimatedPages.style.transition = "linear 0.075s";
+                                        skinHeader.style.filter = "blur(8px)";
+                                        skinHeader.style.transition = "linear 0.075s";
+                                        backdropContainer.style.filter = "blur(8px)";
+                                        backdropContainer.style.transition = "linear 0.075s";
+                                        appFooter.style.filter = "blur(8px)";
+                                        appFooter.style.transition = "linear 0.075s";
+                                        videoPlayer.style.filter = "blur(8px)";
+                                        videoPlayer.style.transition = "linear 0.075s";
+                                        return;
+                        
+                                    } else if (!document.querySelector('.dialogBackdropOpened')) {
+                                        drawer.style.filter = "blur(0)";
+                                        mainAnimatedPages.style.filter = "blur(0)";
+                                        skinHeader.style.filter = "blur(0)";
+                                        backdropContainer.style.filter = "blur(0)";
+                                        appFooter.style.filter = "blur(0)";
+                                        videoPlayer.style.filter = "blur(0)";
+                                        return;
+                                    }
+                                } catch (error) {
+                                }
+                            });
+                        
+                            blurObserver.observe(document,
+                                {
+                                    childList: true,
+                                    subtree: true,
+                                    attributes: true,
+                                    attributeOldValue: true
+                                });
+                        })(this);</script>`,
+                        destFile: "assets\\www\\index.html"
                     }
                 ],
                 FindAndReplace: [
@@ -194,6 +301,11 @@ module.exports = {
                         findString: '{name:"Dark",id:"dark",isDefault:"dark"===defaultTheme}',
                         replaceString: '{name:"Dark",id:"dark"}',
                         destFile: 'assets\\www\\modules\\skinmanager.js'
+                    },
+                    {
+                        destFile: "modules\\listview\\listview.js",
+                        findString: "options.showDateModified&&textlines.push(datetime.toLocaleString(datetime.parseISO8601Date(item.DateModified,!0)))",
+                        replaceString: "options.showDateModified&&textlines.push(`${datetime.toLocaleString(datetime.parseISO8601Date(item.DateModified, !0))}, ${Math.round(item.Size / 1024)} KB`)"
                     }
                 ]
             }
