@@ -10,6 +10,7 @@
   "author": "Rechigo (Luke)",
   "license": "MIT",
   "dependencies": {
-    "fs-extra": "^9.0.0"
+    "fs-extra": "^9.0.0",
+    "request": "^2.88.2"
   }
 }
