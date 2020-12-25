@@ -24,8 +24,7 @@ const config = require("./config.js");
         console.log("Executing pre-mod command");
         await executeModCommand(profile.PreModCommand)
             .catch(err => {
-                console.error("Failed to execute pre-mod command", err);
-                process.exit(1);
+                console.error("Failed to execute pre-mod command, skipping", err);
             });
     }
 
